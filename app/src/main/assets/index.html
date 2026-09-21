@@ -53,13 +53,18 @@ async function osrm(a,b){
  return j.routes[0];
 }
 async function elevation(points){
- const step=Math.max(1,Math.floor(points.length/70));
+ const step=Math.max(1,Math.floor(points.length/80));
  const p=[]; for(let i=0;i<points.length;i+=step)p.push(points[i]);
  if(p[p.length-1]!==points[points.length-1])p.push(points[points.length-1]);
- const loc=p.map(x=>({latitude:x[1],longitude:x[0]}));
- const r=await fetch('https://www.elevation-api.eu/v1/elevation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({locations:loc})});
+ const lat=p.map(x=>x[1].toFixed(6)).join(',');
+ const lon=p.map(x=>x[0].toFixed(6)).join(',');
+ const u='https://api.open-meteo.com/v1/elevation?latitude='+encodeURIComponent(lat)+'&longitude='+encodeURIComponent(lon);
+ const r=await fetch(u);
  if(!r.ok)throw new Error('Elevation data မရပါ');
- const j=await r.json(); return {points:p,elevations:j.elevations||[]};
+ const j=await r.json();
+ const e=Array.isArray(j)?j.flatMap(x=>x.elevation||[]):(j.elevation||[]);
+ if(!Array.isArray(e)||e.length!==p.length)throw new Error('Elevation data မပြည့်စုံပါ');
+ return {points:p,elevations:e};
 }
 function splitMiles(sampled){
  let mountain=0,flat=0;
@@ -91,9 +96,8 @@ async function calculate(){
   for(let i=0;i<cities.length;i++)for(let j=i+1;j<cities.length;j++){
     const r=await osrm(cities[i],cities[j]);
     const coords=r.geometry.coordinates;
-    let sf={mountain:0,flat:1};
-    try{sf=splitMiles(await elevation(coords));}catch(e){}
     const miles=r.distance/1609.344;
+    const sf=splitMiles(await elevation(coords));
     routeData.push({a:cities[i],b:cities[j],miles,mountain:miles*sf.mountain,flat:miles*sf.flat,geo:coords});
   }
   routeData.sort((a,b)=>a.miles-b.miles);
