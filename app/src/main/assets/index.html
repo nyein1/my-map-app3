@@ -82,7 +82,7 @@ function fuel(miles){
 }
 function money(n){return Number(n).toFixed(2)}
 async function calculate(){
- const names=[...document.querySelectorAll('input')].map(x=>x.value.trim()).filter(Boolean);
+ const names=[...document.querySelectorAll('input[id^="city"]')].map(x=>x.value.trim()).filter(Boolean);
  if(names.length<2){alert('အနည်းဆုံး မြို့ ၂ နေရာထည့်ပါ');return}
  document.getElementById('status').textContent='မြို့များနှင့် လမ်းကြောင်းများ ရှာနေပါတယ်...';
  routeData=[]; 
@@ -111,7 +111,7 @@ function showResults(){
 }
 function card(title,x){
  const g=fuel(x.miles),l=g*3.785411784;
- return '<div class="result"><div class="big">'+title+'</div><div>'+x.a.name+' → '+x.b.name+'</div><div>⛰️ တောင်ပေါ်မိုင်: <b>'+money(x.mountain)+'</b></div><div>🛣️ မြေပြန့်မိုင်: <b>'+money(x.flat)+'</b></div><div>📏 စုစုပေါင်း: <b>'+money(x.miles)+' မိုင်</b></div><div>⛽ ဆီ: <b>'+money(g)+' ဂါလံ</b> / '+money(l)+' L</div><div class="muted">'+money(x.miles)+' ÷ 9 × 2 = '+money(g)+' ဂါလံ</div><button onclick="showRoute('+routeData.indexOf(x)+')">🗺️ ဒီလမ်းကို မြေပုံမှာကြည့်မယ်</button></div>'
+ return '<div class="result"><div class="big">'+title+'</div><div>'+x.a.name+' → '+x.b.name+'</div><div>⛰️ တောင်ပေါ်မိုင်: <b>'+money(x.mountain)+'</b></div><div>🛣️ မြေပြန့်မိုင်: <b>'+money(x.flat)+'</b></div><div>📏 စုစုပေါင်း: <b>'+money(x.miles)+' မိုင်</b></div><div>⛽ ဆီ: <b>'+money(g)+' ဂါလံ</b> / '+money(l)+' L</div><div class="muted">'+money(x.miles)+' ÷ '+money(Number(document.getElementById('rateMiles').value))+' × '+money(Number(document.getElementById('rateGallons').value))+' = '+money(g)+' ဂါလံ</div><button onclick="showRoute('+routeData.indexOf(x)+')">🗺️ ဒီလမ်းကို မြေပုံမှာကြည့်မယ်</button></div>'
 }
 function initMap(){
  if(map)return;
